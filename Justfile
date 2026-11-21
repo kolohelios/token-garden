@@ -1,5 +1,6 @@
 set shell := ["/bin/sh", "-cu"]
 
+export UV_PROJECT_ENVIRONMENT := ".release-venv"
 python := ".release-venv/bin/python"
 
 # A separate environment leaves an existing application's .venv untouched.

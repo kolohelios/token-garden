@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -148,6 +149,33 @@ def test_smoke_uses_only_explicit_synthetic_sources(
     scan = next(command for command in commands if "scan" in command)
     assert scan[scan.index("--sessions") + 1] == str(tmp_path / "sessions")
     assert len([command for command in commands if "--offline" in command]) == 2
+
+
+def test_just_pins_release_environment_outside_devshell(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parent.parent
+    for inherited in (None, str(tmp_path / "wrong-environment")):
+        environment = {
+            key: value for key, value in os.environ.items() if key != "UV_PROJECT_ENVIRONMENT"
+        }
+        if inherited is not None:
+            environment["UV_PROJECT_ENVIRONMENT"] = inherited
+        result = subprocess.run(
+            [
+                "just",
+                "--justfile",
+                str(root / "Justfile"),
+                "--command",
+                sys.executable,
+                "-c",
+                "import os; print(os.environ['UV_PROJECT_ENVIRONMENT'])",
+            ],
+            cwd=tmp_path,
+            env=environment,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        assert result.stdout.strip() == ".release-venv"
 
 
 def test_main_ruleset_requires_prs_without_single_maintainer_deadlock() -> None:
