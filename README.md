@@ -95,6 +95,8 @@ Packages appear in `dist/`; fixture reports appear in `reports/`. Neither is tra
 
 CI caches uv downloads under keys including both lockfiles and package metadata; it never caches app state or environments. Uploads are limited to coverage/JUnit reports and the inspected wheel/sdist, with seven-day retention. Actions are pinned to commit SHAs; no publishing credentials or write permissions are used. GitHub-hosted execution is still unverified until a remote and a run are separately authorized.
 
+`.shaka/repo.cue` declares both named OS checks as required on `main`, requires an up-to-date branch, and disallows force pushes and branch deletion. This is desired policy, not proof of live protection. Before PR delivery, apply and verify it on the confirmed repository, require pull-request merges and resolved conversations, and verify the actual hosted check names. The current Shaka schema does not represent PR/review requirements; those need separate repository configuration. Local recipes never apply remote settings.
+
 See [architecture](architecture.md), [decisions](architecture-decision-record.md), and [release scope](specs/public-release.md).
 
 ## Release status
