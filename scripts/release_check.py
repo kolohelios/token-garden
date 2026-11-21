@@ -10,9 +10,11 @@ import tempfile
 import venv
 import zipfile
 from datetime import UTC, datetime
+from email.parser import BytesParser
 from pathlib import Path, PurePosixPath
 
 VERSION = "0.1.0"
+LICENSES = frozenset(("LICENSE-MIT", "LICENSE-APACHE"))
 MODULES = frozenset(
     f"garden/{name}.py"
     for name in (
@@ -50,6 +52,7 @@ SOURCE_ROOT_FILES = frozenset(
 )
 SOURCE_FILES = (
     SOURCE_ROOT_FILES
+    | LICENSES
     | MODULES
     | frozenset(
         (
@@ -75,7 +78,7 @@ EGG_INFO = frozenset(("token_garden.egg-info/SOURCES.txt",))
 DIST_INFO = frozenset(
     f"token_garden-{VERSION}.dist-info/{name}"
     for name in ("METADATA", "WHEEL", "entry_points.txt", "top_level.txt", "RECORD")
-)
+) | frozenset(f"token_garden-{VERSION}.dist-info/licenses/{name}" for name in LICENSES)
 
 
 def check_inventory(
@@ -86,6 +89,19 @@ def check_inventory(
         raise ValueError(f"Archive inventory mismatch: unexpected={unexpected}, missing={missing}")
 
 
+def check_license_metadata(content: bytes) -> None:
+    metadata = BytesParser().parsebytes(content)
+    if metadata.get("License-Expression") != "MIT OR Apache-2.0":
+        raise ValueError("Expected recipient-choice SPDX license expression")
+    if frozenset(metadata.get_all("License-File", [])) != LICENSES:
+        raise ValueError("Expected both declared license files")
+
+
+def check_license_text(name: str, content: bytes) -> None:
+    if content != (Path(__file__).resolve().parent.parent / name).read_bytes():
+        raise ValueError(f"License text differs from source: {name}")
+
+
 def inspect_archives(directory: Path) -> Path:
     wheel = directory / f"token_garden-{VERSION}-py3-none-any.whl"
     with zipfile.ZipFile(wheel) as archive:
@@ -93,6 +109,11 @@ def inspect_archives(directory: Path) -> Path:
         check_inventory(names, MODULES | DIST_INFO, MODULES | DIST_INFO)
         if len(names) != len(archive.namelist()):
             raise ValueError("Duplicate wheel entries")
+        check_license_metadata(archive.read(f"token_garden-{VERSION}.dist-info/METADATA"))
+        for name in LICENSES:
+            check_license_text(
+                name, archive.read(f"token_garden-{VERSION}.dist-info/licenses/{name}")
+            )
     with tarfile.open(directory / f"token_garden-{VERSION}.tar.gz") as archive:
         files = tuple(member for member in archive.getmembers() if not member.isdir())
         if any(not member.isfile() for member in files):
@@ -104,6 +125,16 @@ def inspect_archives(directory: Path) -> Path:
         if any(".." in PurePosixPath(name).parts for name in names) or len(names) != len(files):
             raise ValueError("Unsafe or duplicate sdist entries")
         check_inventory(names, SOURCE_FILES | EGG_INFO, SOURCE_FILES | EGG_INFO)
+        for name in (*LICENSES, "PKG-INFO"):
+            stream = archive.extractfile(prefix + name)
+            if stream is None:
+                raise ValueError(f"Missing archive file: {name}")
+            with stream:
+                content = stream.read()
+            if name == "PKG-INFO":
+                check_license_metadata(content)
+            else:
+                check_license_text(name, content)
     return wheel
 
 

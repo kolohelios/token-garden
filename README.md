@@ -99,4 +99,6 @@ See [architecture](architecture.md), [decisions](architecture-decision-record.md
 
 ## Release status
 
-Publication is not automated. No repository, package registry, or release upload is created by local checks. **A license has not been selected**; source availability alone does not grant an open-source license. Confirm licensing, package name/version, and publication approval before distributing.
+Licensed under either the [MIT License](LICENSE-MIT) or [Apache License 2.0](LICENSE-APACHE), **at the recipient’s option** (`MIT OR Apache-2.0`). Copyright 2026 Jon Edwards. Both license texts ship in the wheel and source distribution.
+
+Publication is not automated. No repository, package registry, or release upload is created by local checks. Confirm package name/version and publication approval before distributing.

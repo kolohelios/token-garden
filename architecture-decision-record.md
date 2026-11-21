@@ -10,4 +10,4 @@ This keeps local and CI gates shared without misclassifying the app or claiming 
 
 The app's working directory may contain live state, environments, or generated artifacts. Setuptools uses an allowlisted source manifest; a separate exact archive inventory rejects unexpected release members. The wheel contains only application modules and distribution metadata. The source archive also carries synthetic tests and development inputs.
 
-The inventory must be deliberately updated when release files change. That maintenance cost is preferable to accidentally distributing private state. Licensing and publication remain separate owner decisions.
+The inventory must be deliberately updated when release files change. That maintenance cost is preferable to accidentally distributing private state. The owner selected MIT OR Apache-2.0 at the recipient’s option; both license texts are required archive members. Publication remains a separate owner decision.

@@ -24,4 +24,4 @@ Alex downloads the source on a laptop, creates a virtual environment, and runs t
 
 ## Publication decisions
 
-No license has been selected. Do not invent one or imply open-source licensing. Publishing and repository creation require separate approval. The package name/version and final license need owner review before release.
+The owner selected MIT OR Apache-2.0, at the recipient’s option. Include both canonical license texts, Jon Edwards’s copyright notice, and SPDX packaging metadata in releases. The minimal Shaka repository-gate integration is approved; native Python/TS support is deferred. Publishing and repository creation still require separate approval, as do the final package name/version.

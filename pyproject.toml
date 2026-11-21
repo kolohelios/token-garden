@@ -7,6 +7,8 @@ name = "token-garden"
 version = "0.1.0"
 description = "Local saved Pi token usage readout and terminal popup for Herdr"
 readme = "README.md"
+license = "MIT OR Apache-2.0"
+license-files = ["LICENSE-MIT", "LICENSE-APACHE"]
 authors = [{ name = "kolohelios" }]
 keywords = ["pi", "herdr", "tokens", "local"]
 classifiers = [
