@@ -1,0 +1,12 @@
+global-exclude *
+include pyproject.toml README.md MANIFEST.in Justfile garden.sh .gitignore
+include architecture.md architecture-decision-record.md
+include herdr-config.example.toml herdr-plugin.toml prometheus.yml
+include flake.nix flake.lock uv.lock
+recursive-include garden *.py
+recursive-include tests *.py
+recursive-include scripts *.py
+recursive-include specs *.md
+recursive-include .shaka *.cue
+recursive-include .github/workflows *.yml
+include taplo.toml

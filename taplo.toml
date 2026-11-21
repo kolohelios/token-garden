@@ -1,0 +1,2 @@
+include = ["pyproject.toml", "herdr-config.example.toml", "herdr-plugin.toml"]
+exclude = [".state/**", ".venv/**", ".release-venv/**"]

@@ -14,3 +14,6 @@ dist/
 .release-venv/
 .smoke-venv/
 .DS_Store
+.uv-cache/
+.surface/
+.jj/
