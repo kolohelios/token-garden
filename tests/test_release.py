@@ -13,10 +13,24 @@ import pytest
 from scripts import release_check as release
 
 
-def archives(directory: Path, extra: str | None = None, missing: bool = False) -> None:
+def fixture_bytes(name: str) -> bytes:
+    if Path(name).name in release.LICENSES:
+        return (Path(__file__).resolve().parent.parent / Path(name).name).read_bytes()
+    if name.endswith(("METADATA", "PKG-INFO")):
+        return (
+            b"License-Expression: MIT OR Apache-2.0\n"
+            b"License-File: LICENSE-MIT\nLicense-File: LICENSE-APACHE\n\n"
+        )
+    return b"fixture"
+
+
+def archives(
+    directory: Path, extra: str | None = None, missing: bool = False, omit: str | None = None
+) -> None:
     with zipfile.ZipFile(directory / "token_garden-0.1.0-py3-none-any.whl", "w") as wheel:
         for name in sorted(release.MODULES | release.DIST_INFO):
-            wheel.writestr(name, "fixture")
+            if name != omit:
+                wheel.writestr(name, fixture_bytes(name))
     with tarfile.open(directory / "token_garden-0.1.0.tar.gz", "w:gz") as sdist:
         names = release.SOURCE_FILES | release.EGG_INFO
         if missing:
@@ -24,9 +38,11 @@ def archives(directory: Path, extra: str | None = None, missing: bool = False) -
         if extra:
             names |= {extra}
         for name in sorted(names):
-            member = tarfile.TarInfo(f"token_garden-0.1.0/{name}")
-            member.size = 7
-            sdist.addfile(member, io.BytesIO(b"fixture"))
+            if name != omit:
+                payload = fixture_bytes(name)
+                member = tarfile.TarInfo(f"token_garden-0.1.0/{name}")
+                member.size = len(payload)
+                sdist.addfile(member, io.BytesIO(payload))
 
 
 def test_archive_inventory_accepts_only_reviewed_files(tmp_path: Path) -> None:
@@ -41,6 +57,36 @@ def test_sdist_rejects_private_or_unreviewed_content(tmp_path: Path, extra: str)
     archives(tmp_path, extra)
     with pytest.raises(ValueError):
         release.inspect_archives(tmp_path)
+
+
+@pytest.mark.parametrize("license_name", sorted(release.LICENSES))
+@pytest.mark.parametrize("wheel", [False, True])
+def test_archives_require_both_license_texts(
+    tmp_path: Path, license_name: str, wheel: bool
+) -> None:
+    member = f"token_garden-0.1.0.dist-info/licenses/{license_name}" if wheel else license_name
+    archives(tmp_path, omit=member)
+    with pytest.raises(ValueError, match="missing"):
+        release.inspect_archives(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        b"License-Expression: MIT\nLicense-File: LICENSE-MIT\nLicense-File: LICENSE-APACHE\n",
+        b"License-Expression: MIT AND Apache-2.0\n",
+        b"License-Expression: MIT OR Apache-2.0\nLicense-File: LICENSE-MIT\n",
+    ],
+)
+def test_license_metadata_preserves_recipient_choice(metadata: bytes) -> None:
+    with pytest.raises(ValueError):
+        release.check_license_metadata(metadata)
+
+
+@pytest.mark.parametrize("license_name", sorted(release.LICENSES))
+def test_license_text_must_match_source(license_name: str) -> None:
+    with pytest.raises(ValueError, match="differs"):
+        release.check_license_text(license_name, b"truncated license")
 
 
 def test_sdist_requires_application_source(tmp_path: Path) -> None:
