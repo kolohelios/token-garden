@@ -30,6 +30,7 @@ MODULES = frozenset(
 SOURCE_ROOT_FILES = frozenset(
     (
         "README.md",
+        ".gitignore",
         "architecture.md",
         "architecture-decision-record.md",
         "pyproject.toml",

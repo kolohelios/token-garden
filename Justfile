@@ -1,16 +1,34 @@
 set shell := ["/bin/sh", "-cu"]
 
-python := ".venv/bin/python"
+python := ".release-venv/bin/python"
 
+# A separate environment leaves an existing application's .venv untouched.
 setup:
-    python3 -m venv .venv
-    {{python}} -m pip install -e '.[dev]'
+    uv sync --locked --extra dev
 
-validate:
-    .venv/bin/ruff check garden tests
-    .venv/bin/ruff format --check garden tests
-    .venv/bin/mypy garden tests
-    {{python}} -m pytest --cov=garden --cov-report=term-missing --cov-fail-under=90
+validate: setup
+    .release-venv/bin/ruff check garden tests scripts
+    .release-venv/bin/ruff format --check garden tests scripts
+    .release-venv/bin/mypy garden tests scripts
+    mkdir -p reports
+    {{python}} -m pytest --cov=garden --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/tests.xml --cov-fail-under=90
+    {{python}} -m pytest tests/test_release.py --cov=scripts --cov-report=term-missing --cov-report=xml:reports/release-coverage.xml --cov-fail-under=90
+
+repo-check:
+    shaka whitespace check
+    shaka preflight --keep-going
+
+package: setup
+    mkdir -p reports
+    uv export --locked --no-dev --no-emit-project --output-file reports/runtime-requirements.txt > /dev/null
+    {{python}} -m build --no-isolation --outdir dist
+    {{python}} -m twine check --strict dist/token_garden-0.1.0.tar.gz dist/token_garden-0.1.0-py3-none-any.whl
+
+smoke: package
+    {{python}} -m scripts.release_check dist
+
+# CI and local release readiness use exactly this finite gate.
+check: validate smoke repo-check
 
 serve:
     sh garden.sh serve

@@ -1,0 +1,61 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  UV_CACHE_DIR: ${{ github.workspace }}/.uv-cache
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Python and Shaka checks
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@d698718aa798980d17dd749f03beae0b51183399 # v31
+      - name: Cache uv downloads (not environments or app state)
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock', 'flake.lock', 'pyproject.toml') }}
+      - name: Run local release gate
+        run: |
+          nix develop --command jj git init --colocate
+          nix develop --command just check
+      - name: Upload fixture validation reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reports-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            reports/coverage.xml
+            reports/release-coverage.xml
+            reports/tests.xml
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload inspected packages (not a publication)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: packages-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            dist/token_garden-0.1.0.tar.gz
+            dist/token_garden-0.1.0-py3-none-any.whl
+          retention-days: 7
+          if-no-files-found: error

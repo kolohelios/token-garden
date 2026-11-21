@@ -1,22 +1,43 @@
 [build-system]
-requires = ["setuptools>=77"]
+requires = ["setuptools==82.0.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "token-garden"
 version = "0.1.0"
-description = "A little local Pi usage garden for Herdr"
+description = "Local saved Pi token usage readout and terminal popup for Herdr"
+readme = "README.md"
+authors = [{ name = "kolohelios" }]
+keywords = ["pi", "herdr", "tokens", "local"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+]
 requires-python = ">=3.12"
 dependencies = ["pydantic>=2.12,<3"]
 
 [project.optional-dependencies]
-dev = ["pytest>=9,<10", "pytest-cov>=7,<8", "ruff>=0.16,<0.17", "mypy>=2,<3"]
+dev = [
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+  "ruff==0.16.10",
+  "mypy==2.4.0",
+  "build==1.4.0",
+  "setuptools==82.0.1",
+  "twine==6.2.0",
+]
 
 [project.scripts]
 token-garden = "garden.cli:main"
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.packages.find]
-include = ["garden*"]
+include = ["garden"]
 
 [tool.ruff]
 target-version = "py312"
@@ -35,3 +56,7 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 source = ["garden"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

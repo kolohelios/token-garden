@@ -74,7 +74,28 @@ flowchart LR
 
 ## Development and release checks
 
-See [the release preparation scope](specs/public-release.md). Development tooling and CI recipes are documented below as they are implemented.
+Install Nix with flakes enabled. In a Git checkout:
+
+```sh
+nix develop
+jj git init --colocate       # once, in this checkout; needed by Shaka's file listing
+just check
+```
+
+`flake.lock` pins Shaka, Nixpkgs, Python 3.12, uv, just, and repository linters. `uv.lock` pins Python dependency versions and hashes. `just setup` uses `.release-venv`, leaving any app `.venv` alone. No global configuration is required.
+
+- `just validate`: Ruff lint/format, strict mypy, all tests, and separate **90% branch-aware coverage gates** for `garden` and release tooling.
+- `just smoke`: build sdist, build wheel from that sdist, strict Twine metadata checks, exact archive inventories, and installed-wheel smoke in an isolated interpreter with synthetic sessions/private temporary state. Runtime dependencies use exported lockfile hashes.
+- `just repo-check`: Shaka whitespace and preflight (including typos, actionlint, workflow accounting, and TOML formatting).
+- `just check`: all the above; CI runs this same gate on Linux and macOS.
+
+**Shaka limitation:** its schema has no Python kind and `shaka build` is a stub. There is deliberately no fake `project.cue`. Its project checks discover zero projects; Python recipes, not Shaka's project loop, enforce application checks and assemble packages. The handwritten workflow is explicitly accounted for in `.shaka/repo.cue`. Colocated `.jj` is local metadata, not a second checkout; Git commits remain the release history.
+
+Packages appear in `dist/`; fixture reports appear in `reports/`. Neither is tracked. The wheel contains only `garden` modules and Python distribution metadata. The sdist additionally includes synthetic tests, release tooling, portable examples, docs, specs, lockfiles, and CI configuration. Explicit inventory checks reject extra files, missing source, and unsafe archive entries. Keep application state and environments out of both.
+
+CI caches uv downloads under keys including both lockfiles and package metadata; it never caches app state or environments. Uploads are limited to coverage/JUnit reports and the inspected wheel/sdist, with seven-day retention. Actions are pinned to commit SHAs; no publishing credentials or write permissions are used. GitHub-hosted execution is still unverified until a remote and a run are separately authorized.
+
+See [architecture](architecture.md), [decisions](architecture-decision-record.md), and [release scope](specs/public-release.md).
 
 ## Release status
 

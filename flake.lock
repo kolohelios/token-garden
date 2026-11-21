@@ -1,0 +1,90 @@
+{
+  "nodes": {
+    "kolohelios-nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1794876002,
+        "narHash": "sha256-CJh5Tn7d4y/WX28nUTEVSSJxtY+b+MyyZATghgPRy+c=",
+        "rev": "591b01597475ef72918bff0f5af43cb22ee1f734",
+        "revCount": 834,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/kolohelios/kolohelios-nix/0.1.834%2Brev-591b01597475ef72918bff0f5af43cb22ee1f734/01a1e6f5-8b31-7620-816d-600ce191064d/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/kolohelios/kolohelios-nix/%2A.tar.gz"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1794756927,
+        "narHash": "sha256-IfuPcOpwC+bYvBdtUhA9hHhY7xV7k9T5LeOTZFiJB4o=",
+        "rev": "b349185bb79c7cf7ad8ea8c097931730bf473c71",
+        "revCount": 1018852,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1018852%2Brev-b349185bb79c7cf7ad8ea8c097931730bf473c71/01a1e56f-394c-7622-976b-d83994a441fb/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/NixOS/nixpkgs/0"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": [
+          "shaka",
+          "nixpkgs"
+        ],
+        "shaka": "shaka"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "shaka",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1777432579,
+        "narHash": "sha256-Ce11TStDsqCge2vAAfLKe2+4lDI5cSX5ZYZOuKJBKKQ=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "3ecb5e6ab380ced3272ef7fcfe398bffbcc0f152",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "shaka": {
+      "inputs": {
+        "kolohelios-nix": "kolohelios-nix",
+        "nixpkgs": [
+          "shaka",
+          "kolohelios-nix",
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1794894195,
+        "narHash": "sha256-jT73CTMoPUOTvPxJwgGnmXNvoWYDnTkrTFSR50YjtFE=",
+        "rev": "496fc66f80a1ee0fae9034b1b294dd38775c1934",
+        "revCount": 837,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/kolohelios/shaka/0.1.837%2Brev-496fc66f80a1ee0fae9034b1b294dd38775c1934/01a1e80d-1044-7920-9837-e16a6177008b/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/kolohelios/shaka/%2A.tar.gz"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
