@@ -29,6 +29,11 @@ package: setup
 smoke: package
     {{python}} -m scripts.release_check dist
 
+# Read-only live-policy verification; requires GitHub authentication.
+audit-repo:
+    case "$(git remote get-url origin)" in git@github.com:kolohelios/token-garden.git|https://github.com/kolohelios/token-garden.git|https://github.com/kolohelios/token-garden) ;; *) printf '%s\n' 'Refusing to audit a different repository' >&2; exit 1 ;; esac
+    GH_HOST=github.com shaka repo audit --json
+
 # CI and local release readiness use exactly this finite gate.
 check: validate smoke repo-check
 

@@ -193,6 +193,7 @@ def test_main_ruleset_requires_prs_without_single_maintainer_deadlock() -> None:
             {
                 "type": "pull_request",
                 "parameters": {
+                    "allowed_merge_methods": ["rebase"],
                     "dismiss_stale_reviews_on_push": True,
                     "require_code_owner_review": False,
                     "require_last_push_approval": False,
@@ -232,6 +233,18 @@ def test_required_checks_match_workflow_and_shaka_policy() -> None:
         "Python and Shaka checks (ubuntu-24.04)",
         "Python and Shaka checks (macos-15)",
     ]
+    merge = re.search(r"merge:\s*\{(.*?)\}", policy, re.DOTALL)
+    assert merge is not None
+    assert dict(re.findall(r"(\w+):\s*(true|false)", merge.group(1))) == {
+        "rebase": "true",
+        "merge": "false",
+        "squash": "false",
+        "deleteBranchOnMerge": "true",
+        "autoMerge": "false",
+    }
+    assert "requireDeletion: true" in policy
+    assert "requireNonFastForward: true" in policy
+    assert "requireStatusChecks: true" in policy
     assert "strictStatusChecks: true" in policy
     assert "allowForcePush: false" in policy
     assert "allowDeletion: false" in policy

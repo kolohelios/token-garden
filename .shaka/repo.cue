@@ -6,7 +6,7 @@ package repopolicy
     merge: {
         rebase: true
         merge: false
-        squash: true
+        squash: false
         deleteBranchOnMerge: true
         autoMerge: false
     }
@@ -19,6 +19,11 @@ package repopolicy
         strictStatusChecks: true
         allowForcePush: false
         allowDeletion: false
+    }
+    rulesets: {
+        requireDeletion: true
+        requireNonFastForward: true
+        requireStatusChecks: true
     }
     handAuthoredWorkflows: ["validate.yml"]
 }
