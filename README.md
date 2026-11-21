@@ -82,11 +82,11 @@ jj git init --colocate       # once, in this checkout; needed by Shaka's file li
 just check
 ```
 
-`flake.lock` pins Shaka, Nixpkgs, Python 3.12, uv, just, and repository linters. `uv.lock` pins Python dependency versions and hashes. `just setup` uses `.release-venv`, leaving any app `.venv` alone. No global configuration is required.
+The Nix release toolchain supports Apple Silicon macOS and x86_64/aarch64 Linux, matching Shaka’s published platforms; it does not provide an Intel macOS devshell. `flake.lock` pins Shaka, Nixpkgs, Python 3.12, uv, just, and repository linters. `uv.lock` pins Python dependency versions and hashes. `just setup` uses `.release-venv`, leaving any app `.venv` alone. No global configuration is required.
 
 - `just validate`: Ruff lint/format, strict mypy, all tests, and separate **90% branch-aware coverage gates** for `garden` and release tooling.
 - `just smoke`: build sdist, build wheel from that sdist, strict Twine metadata checks, exact archive inventories, and installed-wheel smoke in an isolated interpreter with synthetic sessions/private temporary state. Runtime dependencies use exported lockfile hashes.
-- `just repo-check`: Shaka whitespace and preflight (including typos, actionlint, workflow accounting, and TOML formatting).
+- `just repo-check`: evaluate every advertised Nix platform, then Shaka whitespace and preflight (including typos, actionlint, workflow accounting, and TOML formatting).
 - `just check`: all the above; CI runs this same gate on Linux and macOS.
 
 **Shaka limitation:** its schema has no Python kind and `shaka build` is a stub. There is deliberately no fake `project.cue`. Its project checks discover zero projects; Python recipes, not Shaka's project loop, enforce application checks and assemble packages. The handwritten workflow is explicitly accounted for in `.shaka/repo.cue`. Colocated `.jj` is local metadata, not a second checkout; Git commits remain the release history.

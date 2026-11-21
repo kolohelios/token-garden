@@ -16,6 +16,7 @@ validate: setup
     {{python}} -m pytest tests/test_release.py --cov=scripts --cov-report=term-missing --cov-report=xml:reports/release-coverage.xml --cov-fail-under=90
 
 repo-check:
+    nix flake check --all-systems --no-build
     shaka whitespace check
     shaka preflight --keep-going
 
