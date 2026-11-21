@@ -71,6 +71,7 @@ SOURCE_FILES = (
             "specs/public-release.md",
             ".shaka/repo.cue",
             ".github/workflows/validate.yml",
+            ".github/main-ruleset.json",
         )
     )
 )
