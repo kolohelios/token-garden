@@ -1,0 +1,12 @@
+id = "local.token-garden"
+name = "Token garden"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "A little local Pi usage garden"
+platforms = ["macos", "linux"]
+
+[[panes]]
+id = "garden"
+title = "✿ Token garden"
+placement = "overlay"
+command = ["sh", "garden.sh", "ui"]
