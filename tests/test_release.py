@@ -207,7 +207,7 @@ def test_main_ruleset_requires_prs_without_single_maintainer_deadlock() -> None:
                     "required_status_checks": [
                         {"context": "Gate"},
                         {"context": "Python and Shaka checks (ubuntu-24.04)"},
-                        {"context": "Python and Shaka checks (macos-14)"},
+                        {"context": "Python and Shaka checks (macos-15)"},
                     ],
                 },
             },
@@ -220,7 +220,7 @@ def test_required_checks_match_workflow_and_shaka_policy() -> None:
     workflow = (root / ".github/workflows/validate.yml").read_text()
     policy = (root / ".shaka/repo.cue").read_text()
     assert "name: Python and Shaka checks (${{ matrix.os }})" in workflow
-    assert "os: [ubuntu-24.04, macos-14]" in workflow
+    assert "os: [ubuntu-24.04, macos-15]" in workflow
     assert "name: Gate\n    needs: [validate]\n    if: always()" in workflow
     assert "VALIDATION_RESULT: ${{ needs.validate.result }}" in workflow
     assert 'run: test "$VALIDATION_RESULT" = success' in workflow
@@ -230,7 +230,7 @@ def test_required_checks_match_workflow_and_shaka_policy() -> None:
     assert re.findall(r'"([^"]+)"', checks.group(1)) == [
         "Gate",
         "Python and Shaka checks (ubuntu-24.04)",
-        "Python and Shaka checks (macos-14)",
+        "Python and Shaka checks (macos-15)",
     ]
     assert "strictStatusChecks: true" in policy
     assert "allowForcePush: false" in policy
