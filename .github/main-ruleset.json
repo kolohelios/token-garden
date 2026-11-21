@@ -29,7 +29,7 @@
         "required_status_checks": [
           {"context": "Gate"},
           {"context": "Python and Shaka checks (ubuntu-24.04)"},
-          {"context": "Python and Shaka checks (macos-14)"}
+          {"context": "Python and Shaka checks (macos-15)"}
         ]
       }
     }

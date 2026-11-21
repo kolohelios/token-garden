@@ -14,7 +14,7 @@ package repopolicy
         requiredChecks: [
             "Gate",
             "Python and Shaka checks (ubuntu-24.04)",
-            "Python and Shaka checks (macos-14)",
+            "Python and Shaka checks (macos-15)",
         ]
         strictStatusChecks: true
         allowForcePush: false
