@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import io
+import json
+import re
 import subprocess
 import sys
 import tarfile
@@ -146,6 +148,65 @@ def test_smoke_uses_only_explicit_synthetic_sources(
     scan = next(command for command in commands if "scan" in command)
     assert scan[scan.index("--sessions") + 1] == str(tmp_path / "sessions")
     assert len([command for command in commands if "--offline" in command]) == 2
+
+
+def test_main_ruleset_requires_prs_without_single_maintainer_deadlock() -> None:
+    root = Path(__file__).resolve().parent.parent
+    ruleset = json.loads((root / ".github/main-ruleset.json").read_text())
+    assert ruleset == {
+        "name": "Protect main",
+        "target": "branch",
+        "enforcement": "active",
+        "bypass_actors": [],
+        "conditions": {"ref_name": {"include": ["refs/heads/main"], "exclude": []}},
+        "rules": [
+            {"type": "deletion"},
+            {"type": "non_fast_forward"},
+            {
+                "type": "pull_request",
+                "parameters": {
+                    "dismiss_stale_reviews_on_push": True,
+                    "require_code_owner_review": False,
+                    "require_last_push_approval": False,
+                    "required_approving_review_count": 0,
+                    "required_review_thread_resolution": True,
+                },
+            },
+            {
+                "type": "required_status_checks",
+                "parameters": {
+                    "strict_required_status_checks_policy": True,
+                    "required_status_checks": [
+                        {"context": "Gate"},
+                        {"context": "Python and Shaka checks (ubuntu-24.04)"},
+                        {"context": "Python and Shaka checks (macos-14)"},
+                    ],
+                },
+            },
+        ],
+    }
+
+
+def test_required_checks_match_workflow_and_shaka_policy() -> None:
+    root = Path(__file__).resolve().parent.parent
+    workflow = (root / ".github/workflows/validate.yml").read_text()
+    policy = (root / ".shaka/repo.cue").read_text()
+    assert "name: Python and Shaka checks (${{ matrix.os }})" in workflow
+    assert "os: [ubuntu-24.04, macos-14]" in workflow
+    assert "name: Gate\n    needs: [validate]\n    if: always()" in workflow
+    assert "VALIDATION_RESULT: ${{ needs.validate.result }}" in workflow
+    assert 'run: test "$VALIDATION_RESULT" = success' in workflow
+    assert "paths:" not in workflow and "paths-ignore:" not in workflow
+    checks = re.search(r"requiredChecks:\s*\[(.*?)\]", policy, re.DOTALL)
+    assert checks is not None
+    assert re.findall(r'"([^"]+)"', checks.group(1)) == [
+        "Gate",
+        "Python and Shaka checks (ubuntu-24.04)",
+        "Python and Shaka checks (macos-14)",
+    ]
+    assert "strictStatusChecks: true" in policy
+    assert "allowForcePush: false" in policy
+    assert "allowDeletion: false" in policy
 
 
 def test_main_inspects_before_installing(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

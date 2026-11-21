@@ -59,3 +59,15 @@ jobs:
             dist/token_garden-0.1.0-py3-none-any.whl
           retention-days: 7
           if-no-files-found: error
+
+  gate:
+    name: Gate
+    needs: [validate]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require all validation matrix jobs to succeed
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+        run: test "$VALIDATION_RESULT" = success

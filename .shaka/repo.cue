@@ -12,6 +12,7 @@ package repopolicy
     }
     branchProtection: {
         requiredChecks: [
+            "Gate",
             "Python and Shaka checks (ubuntu-24.04)",
             "Python and Shaka checks (macos-14)",
         ]

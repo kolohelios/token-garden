@@ -10,4 +10,5 @@ recursive-include scripts *.py
 recursive-include specs *.md
 recursive-include .shaka *.cue
 recursive-include .github/workflows *.yml
+include .github/main-ruleset.json
 include taplo.toml
